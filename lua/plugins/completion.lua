@@ -1,3 +1,5 @@
+local use_copilot = (vim.env.COPILOT == 'true')
+
 return {
   -- Completion UI
   {
@@ -7,7 +9,7 @@ return {
       'L3MON4D3/LuaSnip',
       'rafamadriz/friendly-snippets',
       'nvim-lua/plenary.nvim',
-      'fang2hou/blink-copilot',
+      use_copilot and 'fang2hou/blink-copilot' or nil,
     },
     event = 'InsertEnter',
     config = function()
@@ -18,14 +20,17 @@ return {
         vim.notify('Loaded project snippets', vim.log.levels.INFO)
       end
 
-      local sources = { 'snippets', 'copilot', 'lsp', 'path', 'buffer' }
+      local sources = { 'snippets', 'lsp', 'path', 'buffer' }
       local providers = {}
-      providers.copilot = {
-        name = 'copilot',
-        module = 'blink-copilot',
-        score_offset = 100,
-        async = true,
-      }
+      if use_copilot then
+        table.insert(sources, 2, 'copilot')
+        providers.copilot = {
+          name = 'copilot',
+          module = 'blink-copilot',
+          score_offset = 100,
+          async = true,
+        }
+      end
 
       require('blink.cmp').setup {
         snippets = {

@@ -57,7 +57,7 @@ vim.opt.rtp:prepend(lazypath)
 
 local imports = { { import = 'plugins' } }
 local ai_plugins_env = os.getenv 'VIM_AI_PLUGINS'
-if ai_plugins_env then
+if ai_plugins_env == 'true' then
   table.insert(imports, 2, { import = 'ai-plugins' })
 end
 require('lazy').setup(imports, {
