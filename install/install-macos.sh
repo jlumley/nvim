@@ -5,9 +5,21 @@
 # ~/.config/nvim.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=common.sh
-source "$SCRIPT_DIR/common.sh"
+if [[ -n "${BASH_SOURCE[0]:-}" && -f "$(dirname "${BASH_SOURCE[0]}")/common.sh" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  # shellcheck source=common.sh
+  source "$SCRIPT_DIR/common.sh"
+else
+  # Running via curl | bash, so there's no local common.sh to source - fetch it.
+  # (macOS's stock bash 3.2 doesn't reliably propagate vars/functions out of
+  # `source <(...)` process substitution, so download to a real file first.)
+  common_tmp="$(mktemp)"
+  trap 'rm -f "$common_tmp"' EXIT
+  curl -fsSL -o "$common_tmp" https://raw.githubusercontent.com/jlumley/nvim/main/install/common.sh
+  source "$common_tmp"
+  rm -f "$common_tmp"
+  trap - EXIT
+fi
 
 NVIM_PREFIX="/opt/nvim"
 
